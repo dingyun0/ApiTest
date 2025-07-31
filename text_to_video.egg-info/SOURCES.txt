@@ -1,0 +1,6 @@
+setup.py
+text_to_video.egg-info/PKG-INFO
+text_to_video.egg-info/SOURCES.txt
+text_to_video.egg-info/dependency_links.txt
+text_to_video.egg-info/requires.txt
+text_to_video.egg-info/top_level.txt
