@@ -3,10 +3,10 @@ import time
 from volcenginesdkarkruntime import Ark
 from dotenv import load_dotenv
 
-class FangzhouSmartGenerator:
+class UnifiedGenerator:
     """
-    封装所有与方舟视频生成 API 交互的后端逻辑。
-    能够根据用户选择的模型系列和输入的参数，智能决策使用哪个具体模型。
+    后端统一生成器。
+    严格按照官方文档示例构建 API 请求。
     """
     def __init__(self):
         load_dotenv()
@@ -16,62 +16,72 @@ class FangzhouSmartGenerator:
         self.client = Ark(base_url="https://ark.cn-beijing.volces.com/api/v3", api_key=self.api_key)
 
     def _decide_model_and_validate(self, base_model, params):
-        """核心决策逻辑：根据基础模型和参数，决定具体的模型 endpoint 并验证。"""
+        """核心决策与验证逻辑。"""
         has_prompt = bool(params.get("prompt"))
         has_first_frame = bool(params.get("first_frame_url"))
         has_last_frame = bool(params.get("last_frame_url"))
 
+        if not has_prompt and not has_first_frame:
+            raise ValueError("请求失败：必须提供提示词或首帧图片。")
+
         if base_model == 'doubao-seedance-1.0-pro':
-            if has_first_frame or has_last_frame:
-                raise ValueError("豆包 Pro 系列只支持文生视频，不能输入图片。")
+            if has_last_frame:
+                raise ValueError("模型不匹配：Pro 模型不支持尾帧输入。")
             return 'doubao-seedance-1-0-pro-250528'
 
         elif base_model == 'doubao-seedance-1.0-lite':
-            if has_first_frame:
-                return 'doubao-seedance-1-0-lite-i2v-250428' # 图生视频
-            elif has_prompt:
-                return 'doubao-seedance-1-0-lite-t2v-250428' # 文生视频
+            if has_first_frame or has_last_frame:
+                return 'doubao-seedance-1-0-lite-i2v-250428'
             else:
-                raise ValueError("豆包 Lite 系列需要提供提示词或首帧图片。")
-
-        elif base_model == 'wan2.1-14b':
-            if has_first_frame and has_last_frame:
-                return 'wan2-1-14b-flf2v-250417' # 首尾帧生视频
-            elif has_first_frame:
-                return 'wan2-1-14b-i2v-250225' # 图生视频
-            elif has_prompt:
-                return 'wan2-1-14b-t2v-250225' # 文生视频
-            else:
-                raise ValueError("wan2.1 系列需要提供提示词、首帧或首尾帧图片。")
+                return 'doubao-seedance-1-0-lite-t2v-250428'
         
         raise ValueError(f"未知的基础模型系列: {base_model}")
 
     def _build_request_payload(self, specific_model_id, params):
-        """为已确定的具体模型构建 API 请求体。"""
-        payload = {"model": specific_model_id, "content": [], "parameters": {}}
+        """为所有模型统一构建请求体，严格遵循文档格式。"""
+        payload = {"model": specific_model_id, "content": []}
         
-        # 根据具体模型填充 content 和 parameters
-        if specific_model_id == 'doubao-seedance-1-0-pro-250528':
-            payload['content'].append({"type": "text", "text": params.get("prompt")})
-            payload['parameters'] = {"width": params.get("width", 1024), "height": params.get("height", 576), "duration": params.get("duration", 4), "fps": params.get("fps", 24), "seed": params.get("seed", 0)}
-            if params.get("negative_prompt"): payload['parameters']["negative_prompt"] = params["negative_prompt"]
-        
-        elif specific_model_id == 'doubao-seedance-1-0-lite-t2v-250428':
-            prompt_text = f"{params.get('prompt', '')} --ratio {params.get('ratio', '16:9')}"
-            payload['content'].append({"type": "text", "text": prompt_text})
+        # 1. 构建基础提示词文本，并将所有通用参数统一拼接到文本中
+        prompt_text = params.get("prompt", "")
+        # 使用文档规定的正确缩写
+        # prompt_text += f" --rs {params.get('resolution', '1080p')}" # 暂时注释，因为输入格式需要调整
+        prompt_text += f" --ratio {params.get('ratio', '16:9')}"
+        prompt_text += f" --dur {params.get('duration', 4)}"
+        prompt_text += f" --fps {params.get('framespersecond', 24)}"
+        if params.get('watermark', True):
+            prompt_text += " --wm true"
+        else:
+            prompt_text += " --wm false"
+        if params.get('seed', 0) > 0:
+            prompt_text += f" --seed {params['seed']}"
+        if params.get('camerafixed', False):
+            prompt_text += " --camera_fixed true"
 
-        elif specific_model_id == 'doubao-seedance-1-0-lite-i2v-250428':
-            payload['content'].append({"type": "image", "url": params["first_frame_url"]})
-            payload['parameters'] = {"motion_strength": params.get("motion_strength", 0.5), "seed": params.get("seed", 0)}
+        # 2. 添加文本对象到 content 列表
+        # 即使提示词为空（在图生视频中可选），也需要添加这个 text 对象
+        payload["content"].append({"type": "text", "text": prompt_text.strip()})
 
-        elif specific_model_id == 'wan2-1-14b-flf2v-250417':
-            payload['content'].append({"type": "image", "url": params["first_frame_url"]})
-            payload['content'].append({"type": "image", "url": params["last_frame_url"]})
-            payload['parameters'] = {"duration": params.get("duration", 4), "motion_strength": params.get("motion_strength", 0.5), "seed": params.get("seed", 0)}
+        # 3. 根据文档，正确地添加图片对象
+        first_frame_url = params.get("first_frame_url")
+        last_frame_url = params.get("last_frame_url")
 
-        # ... 此处可补充其他 wan2.1 模型的分支 ...
+        if first_frame_url:
+            image_obj = {
+                "type": "image_url",
+                "image_url": {"url": first_frame_url}
+            }
+            # 如果是首尾帧模式，为首帧添加 role
+            if last_frame_url:
+                image_obj["role"] = "first_frame"
+            payload["content"].append(image_obj)
 
-        if not payload.get('parameters'): del payload['parameters']
+        if last_frame_url:
+            payload["content"].append({
+                "type": "image_url",
+                "image_url": {"url": last_frame_url},
+                "role": "last_frame"
+            })
+
         print(f"[Backend] 构建的最终载荷: {payload}")
         return payload
 
