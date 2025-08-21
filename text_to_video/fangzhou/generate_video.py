@@ -32,7 +32,7 @@ class FangzhouVideoGenerator:
         if seed > 0:
             final_prompt += f" --seed {seed}"
         
-        print(f"[Backend] 构建的最终提示词: {final_prompt}")
+        # print(f"[Backend] 构建的最终提示词: {final_prompt}")
         return final_prompt
 
     def generate(self, prompt, negative_prompt, ratio, duration, fps, seed, status_callback=None):

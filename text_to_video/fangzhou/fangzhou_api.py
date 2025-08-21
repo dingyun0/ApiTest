@@ -82,7 +82,7 @@ class UnifiedGenerator:
                 "role": "last_frame"
             })
 
-        print(f"[Backend] 构建的最终载荷: {payload}")
+        # print(f"[Backend] 构建的最终载荷: {payload}")
         return payload
 
     def generate(self, base_model, params, status_callback=None):
