@@ -12,6 +12,10 @@ build/
 # 忽略环境变量
 venv/
 
+input/
+
+output/
+
 
 # 忽略所有临时文件
 *.tmp

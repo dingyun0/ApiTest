@@ -7,6 +7,7 @@ project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(_
 sys.path.append(project_root)
 
 from text_to_video.fangzhou.fangzhou_api import UnifiedGenerator
+from text_to_video.fangzhou.image_api import generate_image_url
 
 # --- 后端实例化 ---
 try:
@@ -47,6 +48,15 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         with gr.Column(scale=2):
             video_output = gr.Video(label="生成结果", interactive=False)
 
+    # --- 图片生成 UI ---
+    gr.Markdown("## 方舟图片生成器")
+    with gr.Row():
+        with gr.Column(scale=3):
+            image_prompt_input = gr.Textbox(label="提示词", lines=4, placeholder="鱼眼镜头，一只猫咪的头部……")
+            image_submit_button = gr.Button("生成图片", variant="primary")
+        with gr.Column(scale=2):
+            image_output = gr.Image(label="生成结果", interactive=False)
+
     # --- 前端逻辑 ---
     def handle_model_change(model_base):
         """当模型变化时，控制尾帧输入框的状态。"""
@@ -70,6 +80,15 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         except (RuntimeError, TimeoutError, ValueError) as e:
             raise gr.Error(str(e))
 
+    def handle_generate_image(prompt, progress=gr.Progress(track_tqdm=False)):
+        if not prompt or not str(prompt).strip():
+            raise gr.Error("提示词不能为空。")
+        try:
+            url = generate_image_url(prompt)
+            return gr.update(value=url, visible=True)
+        except (RuntimeError, ValueError) as e:
+            raise gr.Error(str(e))
+
     # --- 事件绑定 ---
     model_selector.change(fn=handle_model_change, inputs=model_selector, outputs=last_frame_input)
 
@@ -79,6 +98,8 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         watermark_input, camerafixed_input, seed_input
     ]
     submit_button.click(fn=handle_generate_video, inputs=all_inputs, outputs=video_output)
+
+    image_submit_button.click(fn=handle_generate_image, inputs=image_prompt_input, outputs=image_output)
 
 # --- 启动应用 ---
 if __name__ == "__main__":

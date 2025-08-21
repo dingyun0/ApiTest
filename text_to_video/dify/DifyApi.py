@@ -61,7 +61,6 @@ class DifyApi:
             print("运行工作流...")
             print(f"发送的数据: {json.dumps(data, indent=2, ensure_ascii=False)}")
             response = requests.post(workflow_url, headers=headers, data=json.dumps(data))
-            print(f"响应内容: {response.text}")
             
             if response.status_code in [200, 201]:
                 print("工作流执行成功")
