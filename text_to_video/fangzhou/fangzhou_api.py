@@ -4,10 +4,6 @@ from volcenginesdkarkruntime import Ark
 from dotenv import load_dotenv
 
 class UnifiedGenerator:
-    """
-    后端统一生成器。
-    严格按照官方文档示例构建 API 请求。
-    """
     def __init__(self):
         load_dotenv()
         self.api_key = os.getenv("ARK_API_KEY")
@@ -16,7 +12,6 @@ class UnifiedGenerator:
         self.client = Ark(base_url="https://ark.cn-beijing.volces.com/api/v3", api_key=self.api_key)
 
     def _decide_model_and_validate(self, base_model, params):
-        """核心决策与验证逻辑。"""
         has_prompt = bool(params.get("prompt"))
         has_first_frame = bool(params.get("first_frame_url"))
         has_last_frame = bool(params.get("last_frame_url"))
@@ -38,13 +33,9 @@ class UnifiedGenerator:
         raise ValueError(f"未知的基础模型系列: {base_model}")
 
     def _build_request_payload(self, specific_model_id, params):
-        """为所有模型统一构建请求体，严格遵循文档格式。"""
         payload = {"model": specific_model_id, "content": []}
-        
-        # 1. 构建基础提示词文本，并将所有通用参数统一拼接到文本中
+
         prompt_text = params.get("prompt", "")
-        # 使用文档规定的正确缩写
-        # prompt_text += f" --rs {params.get('resolution', '1080p')}" # 暂时注释，因为输入格式需要调整
         prompt_text += f" --ratio {params.get('ratio', '16:9')}"
         prompt_text += f" --dur {params.get('duration', 4)}"
         prompt_text += f" --fps {params.get('framespersecond', 24)}"
@@ -57,11 +48,8 @@ class UnifiedGenerator:
         if params.get('camerafixed', False):
             prompt_text += " --camera_fixed true"
 
-        # 2. 添加文本对象到 content 列表
-        # 即使提示词为空（在图生视频中可选），也需要添加这个 text 对象
         payload["content"].append({"type": "text", "text": prompt_text.strip()})
 
-        # 3. 根据文档，正确地添加图片对象
         first_frame_url = params.get("first_frame_url")
         last_frame_url = params.get("last_frame_url")
 
@@ -70,7 +58,6 @@ class UnifiedGenerator:
                 "type": "image_url",
                 "image_url": {"url": first_frame_url}
             }
-            # 如果是首尾帧模式，为首帧添加 role
             if last_frame_url:
                 image_obj["role"] = "first_frame"
             payload["content"].append(image_obj)
@@ -82,11 +69,9 @@ class UnifiedGenerator:
                 "role": "last_frame"
             })
 
-        # print(f"[Backend] 构建的最终载荷: {payload}")
         return payload
 
     def generate(self, base_model, params, status_callback=None):
-        """公共方法，执行完整的视频生成流程。"""
         try:
             specific_model_id = self._decide_model_and_validate(base_model, params)
             payload = self._build_request_payload(specific_model_id, params)

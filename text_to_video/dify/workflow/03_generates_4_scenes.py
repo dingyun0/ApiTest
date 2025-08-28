@@ -1,4 +1,4 @@
-# 氛围感空镜和人物情景空镜的dify工作流调用
+# 视频生成四个场景的dify工作流调用
 
 from dotenv import load_dotenv
 import os

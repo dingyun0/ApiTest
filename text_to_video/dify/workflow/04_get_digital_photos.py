@@ -1,4 +1,4 @@
-# 氛围感空镜和人物情景空镜的dify工作流调用
+# 批量生成数字人图片的dify工作流调用后处理
 
 from dotenv import load_dotenv
 import os
@@ -14,16 +14,17 @@ import urllib.request
 import io
 from PIL import Image as PILImage
 
+
 sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from DifyApi import DifyApi
 load_dotenv()
 
 dify_api=DifyApi(api_key=os.getenv("DIGITAL_PHOTOS_API_KEY"))
-INPUT_EXCEL_PATH = "input/template.xlsx"  # 输入Excel文件路径
-OUTPUT_EXCEL_PATH = "output/output.xlsx"  # 输出Excel文件路径
-TEMP_EXCEL_PATH="temp/temp.xlsx"
+INPUT_EXCEL_PATH = os.getenv("INPUT_EXCEL_PATH") # 输入Excel文件路径
+OUTPUT_EXCEL_PATH = os.getenv("OUTPUT_EXCEL_PATH")  # 输出Excel文件路径
+TEMP_EXCEL_PATH=os.getenv("TEMP_EXCEL_PATH")
 
-file_path="/Users/donson/Documents/projects/ApiTest_vivian/ApiTest/text_to_video/dify/workflow/input/template.xlsx"
+file_path="/Users/donson/Documents/projects/ApiTest_vivian/ApiTest/text_to_video/dify/workflow/input/template2.xlsx"
 user="1234567890"
 
 # 读取Excel文件
@@ -137,7 +138,7 @@ if __name__=="__main__":
                     cell.value = value  # 保留原始URL
             else:
                 cell.value = value
-            os.remove(temp_img_path)
+
 
     # 调整列宽以适应内容
     # 调整所有列宽以适应内容或图片

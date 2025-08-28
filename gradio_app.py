@@ -17,13 +17,12 @@ from text_to_video.fangzhou.image_api import generate_image_url
 try:
     generator = UnifiedGenerator()
 except (ValueError, ImportError) as e:
-    print(f"[Frontend] 后端模块初始化失败: {e}")
+    print(f"[Frontend] 初始化失败: {e}")
     generator = None
 
 # --- UI 定义 ---
 with gr.Blocks(theme=gr.themes.Soft()) as demo:
-    gr.Markdown("## 方舟统一视频生成器")
-    gr.Markdown("请选择模型系列并提供参数。系统将根据您的输入自动调用合适的模型。")
+    gr.Markdown("## 方舟-视频生成")
 
     with gr.Row():
         with gr.Column(scale=3):
@@ -55,7 +54,7 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
             video_output = gr.Video(label="生成结果", interactive=False)
 
     # --- 图片生成 UI ---
-    gr.Markdown("## 方舟图片生成器")
+    gr.Markdown("## 方舟图片生成")
     with gr.Row():
         with gr.Column(scale=3):
             image_prompt_input = gr.Textbox(label="提示词", lines=4, placeholder="鱼眼镜头，一只猫咪的头部……")
@@ -71,16 +70,10 @@ with gr.Blocks(theme=gr.themes.Soft()) as demo:
         """将 PIL Image 对象转换为 Base64 编码的 Data URI"""
         if img is None:
             return None
-        
-        # 将 PIL Image 保存到内存中的字节流
+
         buffered = io.BytesIO()
-        # 保存为 PNG 格式，PNG 是无损的，并且被广泛支持
         img.save(buffered, format="PNG")
-        
-        # 获取字节数据并进行 Base64 编码
         encoded_string = base64.b64encode(buffered.getvalue()).decode('utf-8')
-        
-        # 返回 Data URI
         return f"data:image/png;base64,{encoded_string}"
 
     def handle_model_change(model_base):

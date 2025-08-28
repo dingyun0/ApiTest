@@ -6,19 +6,7 @@ from volcenginesdkarkruntime import Ark
 
 
 def generate_image_url(prompt: str, model: str = "doubao-seedream-3-0-t2i-250415") -> str:
-    """调用方舟图片生成功能，返回首张图片的 URL。
 
-    Args:
-        prompt: 中文或英文提示词。
-        model: 模型标识，默认使用 Seedream 3.0 文生图模型。
-
-    Returns:
-        图片直链 URL。
-
-    Raises:
-        ValueError: 入参或环境变量错误。
-        RuntimeError: SDK 调用或返回数据异常。
-    """
     if not prompt or not prompt.strip():
         raise ValueError("提示词不能为空。")
 
