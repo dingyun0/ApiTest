@@ -74,6 +74,7 @@ class UnifiedGenerator:
     def generate(self, base_model, params, status_callback=None):
         try:
             specific_model_id = self._decide_model_and_validate(base_model, params)
+            print(f"当前使用的模型: {specific_model_id}")
             payload = self._build_request_payload(specific_model_id, params)
             if status_callback: status_callback("正在提交任务...")
             create_result = self.client.content_generation.tasks.create(**payload)

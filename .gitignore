@@ -19,3 +19,6 @@ output/
 
 # 忽略所有临时文件
 *.tmp
+.DS_Store
+pycache/
+*.pyc
