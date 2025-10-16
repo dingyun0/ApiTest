@@ -1,0 +1,49 @@
+{
+  "voice_settings": {
+    "voice_id": "zeeTdrCqbhpVKOucLtOKdhytM7rbJx5t",
+    "speed": 1.0
+  },
+  "processing_settings": {
+    "max_workers": 3,
+    "delay_between_batches": 1.0,
+    "timeout": 30,
+    "show_progress": true
+  },
+  "output_settings": {
+    "save_to_file": true,
+    "output_filename": "batch_text_duration_results.json",
+    "include_failed_details": true
+  },
+  "raw_text_batches": [
+    {
+      "batch_name": "iPhone案例介绍",
+      "batch_id": 1,
+      "texts": [
+        "1.  Ever wondered how to keep your iPhone 15 Pro Max safe without hiding its beauty?",
+        "2.  Meet the ESR Classic Series case. It's crystal clear to show off your phone's original color, and it's ultra-thin for a comfortable grip.",
+        "3.  Snap it on easily. Perfect fit every time. And yes, it's fully compatible with MagSafe.",
+        "4.  Enjoy strong magnetic attachment for wireless charging and all your MagSafe accessories. It just clicks into place.",
+        "5.  With military-grade protection and raised edges, your screen and camera are well guarded. Keep it stylish, keep it protected."
+      ]
+    },
+    {
+      "batch_name": "技术创新介绍",
+      "batch_id": 2,
+      "texts": [
+        "1.  Discover the power of innovation in technology.",
+        "2.  Experience seamless connectivity like never before.",
+        "3.  Transform your digital lifestyle with cutting-edge solutions."
+      ]
+    },
+    {
+      "batch_name": "智能生活推广",
+      "batch_id": 3,
+      "texts": [
+        "1.  Welcome to the future of smart living.",
+        "2.  Where convenience meets intelligence.",
+        "3.  Making every day more efficient and enjoyable."
+      ]
+    }
+  ]
+}
+

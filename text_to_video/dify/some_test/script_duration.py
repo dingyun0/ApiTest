@@ -1,10 +1,12 @@
 import requests
 
 raw_text=[
-    "1. Rich brown serums with white droppers, creamy eye creams in luxe jars—sleek, premium, and ready to glow.",
-    "2. Bifida ferment melts in, hyaluronic acid hydrates deep, peptides and antioxidants work their magic: 7-night repair, visible science.",
-    "3. Late-night work? Dab serum on tired skin. Baby’s asleep? Pat eye cream gently. Soft lights, real moments, simple self-care.",
-    "4. 28 days: finer lines. 2 weeks: brighter under eyes. Nighttime repair, morning radiance—this duo’s your secret.",
+"1.  Ever wondered how to keep your iPhone 15 Pro Max safe without hiding its beauty?",
+"2.  Meet the ESR Classic Series case. It’s crystal clear to show off your phone’s original color, and it’s ultra-thin for a comfortable grip.",
+"3.  Snap it on easily. Perfect fit every time. And yes, it’s fully compatible with MagSafe.",
+"4.  Enjoy strong magnetic attachment for wireless charging and all your MagSafe accessories. It just clicks into place.",
+"5.  With military-grade protection and raised edges, your screen and camera are well guarded. Keep it stylish, keep it protected.",
+
 ]
 
 newtext=[text.split('.',1)[1] if '.' in text else text for text in raw_text]
@@ -19,7 +21,7 @@ for i,text in enumerate(newtext):
         "voiceID":voice_id,
         "speed":speed
     }
-    response=requests.post(url,json=payload)
+    response=requests.post(url,json=payload,verify=False)
     response.raise_for_status()
     response_json=response.json()
     duration=response_json["data"]["duration_s"]
